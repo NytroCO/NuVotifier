@@ -293,9 +293,13 @@ public class NuVotifierBukkit extends JavaPlugin implements VoteHandler, Votifie
     public void onDisable() {
         // Shut down the network handlers.
         if (serverGroup != null) {
-            if (serverChannel != null)
-                serverChannel.close();
-            serverGroup.shutdownGracefully();
+            try {
+                if (serverChannel != null)
+                    serverChannel.close().sync();
+                serverGroup.shutdownGracefully().sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         if (forwardingMethod != null) {
             forwardingMethod.halt();
